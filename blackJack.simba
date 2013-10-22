@@ -1,8 +1,5 @@
 program dicingGame;
 
-const
-  Types = ['Clubs', 'Spades', 'Hearts', 'Diamands'];
-  Names = ['Ace', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'Jack', 'Queen', 'King'];
 
 
 type Tcard = record
@@ -24,6 +21,7 @@ end;
 var
   TDeck: array [0..51] of Tcard;
   validCards:TIntegerArray;
+  names, types:TStringArray;
   i: Integer;
   myPlayer:player;
   placeHolder:string;
@@ -31,19 +29,16 @@ var
 function getValue(card:string):Integer;
 begin
   case card of
-    '2': exit(2);
-    '3': exit(3);
-    '4': exit(4);
-    '5': exit(5);
-    '6': exit(6);
-    '7': exit(7);
-    '8': exit(8);
-    '9': exit(9);
-    '10': exit(10);
-    'Jack': exit(10);
-    'Queen': exit(10);
-    'King': exit(10);
-    'Ace': exit(11);
+    '2': result := 2;
+    '3': result := 3;
+    '4': result := 4;
+    '5': result := 5;
+    '6': result := 6;
+    '7': result := 7;
+    '8': result := 8;
+    '9': result := 9;
+    '10', 'Jack', 'Queen','King': result := 10;
+    'Ace': result := 11;
   end;
 end;
 
@@ -159,9 +154,9 @@ begin
   begin
     for i := 0 to aceCount do
     begin
-      result := result - 10
+      result := result - 10;
       if (result <= 21) then
-        exit(result);
+        exit;
     end;
   end;
 end;
@@ -178,8 +173,8 @@ begin
   InputQuery(str1, str2, bet);
   if ((myPlayer.cash - StrToInt64(bet)) < 1) then
   begin
-    Writeln('You do not have that much money!(',(myPlayer.cash - StrToInt64(bet)),')');
-    betProc(str1, str2);
+  //  Writeln('You do not have that much money!(',(myPlayer.cash - StrToInt64(bet)),')');
+   // betProc(str1, str2);
   end;
 end;
 
@@ -231,11 +226,11 @@ end;
 procedure startGame;
 begin
   saveFile('==', myPlayer.name);
-  myPlayer.cash := random(high(Integer)) + 50000;
+  myPlayer.cash := random(1000000) + 50000;
   saveGame();
   Writeln('====================================');
-  Writeln('Starting cash: ' , myPlayer.cash);
-  BetProc('Enter bet', 'Enter starting bet');
+  Writeln('Starting cash: ' + ToStr(myPlayer.cash));
+//  BetProc('Enter bet', 'Enter starting bet');
 end;
 
 function findFile(path, ext, name:string):boolean;
@@ -261,9 +256,11 @@ var
   g:Integer;
   cArray:TIntegerArray;
 begin
+  Types := ['Clubs', 'Spades', 'Hearts', 'Diamands'];
+  Names := ['Ace', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'Jack', 'Queen', 'King'];
   loadDeck;
-  validCards := [0..51];
-  if (not DirectoryExists(appPath + 'BlackJack/Profiles')) then
+ // validCards := [0..51];
+  if (not DirectoryExists((appPath + 'BlackJack/Profiles'))) then
   begin
     if not ForceDirectories(appPath + 'BlackJack/Profiles') then
     begin
@@ -282,7 +279,7 @@ begin
   Inputquery('Open game','Open existing game(y/n)?', placeHolder);
   if (placeHolder = 'y') then
   begin
-    Writeln('Found following files in App path: ' , Getfiles(AppPath + 'BlackJack\Profiles\', 'txt'));
+    Writeln('Found following files in App path: ' + ToStr(Getfiles(AppPath + 'BlackJack\Profiles\', 'txt')));
     InputQuery('Name', ' Name of player: ', placeHolder);
     if (not loadGame(placeHolder)) then
       Writeln('Error loading player file, please create a new player!');
@@ -290,4 +287,4 @@ begin
   if (placeHolder <> 'y') then
     namePlayer();
   startGame();
-end;
+end.
