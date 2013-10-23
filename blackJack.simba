@@ -13,7 +13,7 @@ type player = record
   name:string;
   cash:Int64;
   wins, losses:Integer;
-  upCards, downCards:TIntegerArray;
+  cards:TIntegerArray;
 end;
 
 type gameBoard = record
@@ -25,10 +25,13 @@ end;
 
 type textField = record
   newEdit:TEdit;
+  playerOptions:Array[0..2] of TLabel;
 end;
 
 type gameObject = record
   gameAvatars:Array[0..3] of Integer;
+  myCards:Array of TShape;
+  cardLetters:Array of TLabel;
 end;
 
 
@@ -39,7 +42,7 @@ var
   myPlayer:player;
   placeHolder:string;
   myBoard:gameBoard;
-  gameObjects:gameObject;
+  gameGraphics:gameObject;
   textFields:textField;
 
 procedure loadBMP;
@@ -145,17 +148,13 @@ begin
   result := TDeck[random(52)];
 end;
 
-procedure drawCards(var TIA:TIntegerArray;amount:Integer);
+procedure drawCards();
 var
-  i, card, index:Integer;
+  index:Integer;
 begin
-  for i := 0 to amount do
-  begin
-    index := random(length(validCards));
-    card := validCards[index];
-    TIAAppend(TIA, card);
-    TIADelete(validCards, index);
-  end;
+  index := random(length(validCards));
+  TIAAppend(myPlayer.cards, validCards[index]);
+  TIADelete(validCards, index);
 end;
 
 function cardTotal(cardArray:TIntegerArray):Integer;
@@ -197,8 +196,7 @@ begin
     saveFile('[name=]' + myPlayer.name + '[/name]', s);
     saveFile('[wins=]' + ToStr(myPlayer.wins) + '[/wins]', s);
     saveFile('[losses=]' + ToStr(myPlayer.losses) + '[/losses]', s);
-    saveFile('[upcards=]' + ToStr(myPlayer.upCards) + '[/upcards]', s);
-    saveFile('[downcards=]' + ToStr(myPlayer.downCards) + '[/downcards]', s);
+    saveFile('[cards=]' + ToStr(myPlayer.cards) + '[/cards]', s);
     result := true;
   except
     Writeln('Error saving game');
@@ -221,8 +219,7 @@ begin
     myPlayer.name := Between('[name=]', '[/name]', info);
     myPlayer.wins := StrToInt(Between('[wins=]', '[/wins]', info));
     myPlayer.losses := StrToInt(Between('[losses=]', '[/losses]', info));
-    myPlayer.upCards := [5];
-    myPlayer.downCards := [4];
+    myPlayer.cards := [5];
     result := true;
   except
     Writeln('Error loading player file!');
@@ -292,12 +289,80 @@ begin
   end;
 end;
 
+function getCardColor(id:Integer):Integer;
+begin
+  case lowerCase(TDeck[id].name) of
+    'spade','club': result := 0;
+    'heart','Diamands': result := 255;
+  end;
+end;
+
+function firstLetter(str:string):string;
+begin
+  result := str[0];
+end;
+
+procedure canvasDrawCards;
+var
+  myLabels:Array[0..1] of TLabel;
+  i:Integer;
+begin
+  drawCards();
+  Writeln(myPlayer.cards);
+  for i := 0 to high(gameGraphics.myCards) do
+  begin
+    try
+      with gameGraphics.myCards[i] do
+      begin
+        visible := false;
+        Free;
+      end;
+    except
+      Writeln('Exception!');
+    end;
+  end;
+  setLength(gameGraphics.myCards, length(myPlayer.cards));
+  for i := 0 to high(gameGraphics.myCards) do
+  begin
+    gameGraphics.myCards[i] := TShape.create(myBoard.main);
+    with gameGraphics.myCards[i] do
+    begin
+      Parent := myBoard.main;
+      pen.Color := 12632256;
+      top := 150;
+      left := 50 + (i * 100);
+      height := 100;
+    end;
+  end;
+  setLength(gameGraphics.cardLetters, length(myPlayer.cards));
+  for i := 0 to high(gameGraphics.cardLetters) do
+  begin
+    gameGraphics.cardLetters[i] := TLabel.create(myBoard.main);
+    with gameGraphics.cardLetters[i] do
+    begin
+      parent := myBoard.main;
+      Caption := TDeck[myPlayer.cards[i]].name[0];
+      font.color := 55;//getCardColor(myPlayer.cards[i]);
+      top := 50;
+      left := 50 + (i * 50);
+    end;
+  end;
+end;
+
+procedure handleRequest(sender:TObject);
+begin
+  case sender of
+    textFields.playerOptions[0]: canvasDrawCards;
+  end;
+end;
+
 procedure loadBoard();
 var
   i:Integer;
   text, tsa:TStringArray;
 begin
   myBoard.main := TForm.Create(nil);
+
   with myBoard.main do
   begin
     Caption := 'Black Jack - by the capable Officer Barbrady';
@@ -306,6 +371,21 @@ begin
     width := 670;
     height := 450;
     color := 2909715;
+  end;
+
+  text := ['Hit', 'Stay','Fold'];
+  for i := 0 to high(textFields.playerOptions) do
+  begin
+    textFields.playerOptions[i] := TLabel.create(myBoard.main);
+    with textFields.playerOptions[i] do
+    begin
+      Parent := myBoard.main;
+      Caption := text[i];
+      font.color := 0;
+      onClick := @handleRequest;
+      left := 50 + (i * 70);
+      top := 100;
+    end;
   end;
 
   myBoard.menu := TForm.Create(nil);
@@ -415,7 +495,7 @@ end;
 
 procedure ShowFormModal;
 begin
-  myBoard.menu.ShowModal;
+  myBoard.main.ShowModal;
 
 end;
 
@@ -427,13 +507,22 @@ begin
   ThreadSafeCall('ShowFormModal', v);
 end;
 
+procedure initValid;
+var
+  i:Integer;
+begin
+  setLength(validCards, 52);
+  for i := 0 to high(validCards) do
+    validCards[i] := i;
+end;
+
 begin
   Types := ['Clubs', 'Spades', 'Hearts', 'Diamands'];
   Names := ['Ace', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'Jack', 'Queen', 'King'];
   loadDeck();
+  initValid;
   SafeInitForm;
   SafeShowFormModal;
- // validCards := [0..51];
  {
   if (not DirectoryExists((appPath + 'BlackJack/Profiles'))) then
   begin
