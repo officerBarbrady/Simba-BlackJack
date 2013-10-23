@@ -341,8 +341,8 @@ begin
     with gameGraphics.cardLetters[i] do
     begin
       parent := myBoard.main;
-      Caption := TDeck[myPlayer.cards[i]].name[0];
-      font.color := 55;//getCardColor(myPlayer.cards[i]);
+      Caption := TDeck[myPlayer.cards[i]].name[1];
+      font.color := getCardColor(myPlayer.cards[i]);
       top := 50;
       left := 50 + (i * 50);
     end;
