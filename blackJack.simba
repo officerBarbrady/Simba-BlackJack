@@ -17,12 +17,10 @@ type player = record
 end;
 
 type gameBoard = record
-  main, menu:TForm;
+  main, menu, load:TForm;
   menuLabels:Array[0..3] of TLabel;
+  loadedPlayers:TListBox;
 end;
-
-
-
 
 var
   TDeck: array [0..51] of Tcard;
@@ -260,20 +258,30 @@ begin
   end;
 end;
 
+procedure loadPlayers();
+var
+  tsa:TStringArray;
+  i:Integer;
+begin
+  myBoard.load.SHOWMODAL;
+
+
+end;
+
 procedure FuckYou(sender:TObject);
 begin
   case sender of
     myBoard.menuLabels[0]: namePlayer();
-    myBoard.menuLabels[1]: Writeln('TODO');
-    myBoard.menuLabels[2]: OpenWebPage('http://www.pagat.com/banking/blackjack.html');
-    myBoard.menuLabels[3]: Writeln('TODO');
+    myBoard.menuLabels[1]: loadPlayers();
+    myBoard.menuLabels[2]: openWebPage('http://www.pagat.com/banking/blackjack.html');
+    myBoard.menuLabels[3]: writeln('TODO');
   end;
 end;
 
 procedure loadBoard();
 var
   i:Integer;
-  text:TStringArray;
+  text, tsa:TStringArray;
 begin
   myBoard.main := TForm.Create(nil);
   with myBoard.main do
@@ -296,6 +304,32 @@ begin
     height := 400;
     color := 161526;
   end;
+
+  myBoard.load := TForm.Create(nil);
+  with myBoard.load do
+  begin
+    Caption := 'Load player - by the capable Officer Barbrady';
+    top := 250;
+    left := 350;
+    width := 400;
+    height := 300;
+    color := 2500134;
+  end;
+
+  myBoard.loadedPlayers := TListBox.Create(myBoard.load);
+  with myBoard.loadedPlayers do
+  begin
+      Parent := myBoard.load;
+      Left := 40;
+      Top := 60;
+      Width := 140;
+      Height := 200;
+      PARENTCOLOR := false;
+      FONT.Size := 11;
+      font.name := 'Times new Roman';
+     // Onclick := @Fuckyou;
+  end;
+
   text := ['New Game', 'Load Game','Instructions','Quit'];
   for i := 0 to high(myBoard.menuLabels) do
   begin
@@ -306,7 +340,6 @@ begin
       Caption := text[i];
       left := 165;
       top := 65 + (i * 70);
-     // color := 16777215;
       font.size := 17;
       font.color := 1098086;
       if (i = 3) then
@@ -315,6 +348,9 @@ begin
       onClick := @Fuckyou;
     end;
   end;
+  tsa := Getfiles(AppPath + 'BlackJack\Profiles\', 'txt');
+  for i := 0 to high(tsa) do
+    myBoard.loadedPlayers.ITEMS.Add(replace(tsa[i], '.txt', '', [rfReplaceAll]));
 
 end;
 
