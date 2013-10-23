@@ -31,7 +31,7 @@ end;
 type gameObject = record
   gameAvatars:Array[0..3] of Integer;
   myCards:Array of TShape;
-  cardLetters:Array of TLabel;
+  cardLetters:array of Array of TLabel; //pwned
 end;
 
 
@@ -291,9 +291,9 @@ end;
 
 function getCardColor(id:Integer):Integer;
 begin
-  case lowerCase(TDeck[id].name) of
-    'spade','club': result := 0;
-    'heart','Diamands': result := 255;
+  case TDeck[id].cardType of
+    'Spades','Clubs': result := 0;
+    'Hearts','Diamands': result := 255;
   end;
 end;
 
@@ -302,14 +302,11 @@ begin
   result := str[0];
 end;
 
-procedure canvasDrawCards;
+procedure clearDraw();
 var
-  myLabels:Array[0..1] of TLabel;
-  i:Integer;
+  i, l:Integer;
 begin
-  drawCards();
-  Writeln(myPlayer.cards);
-  for i := 0 to high(gameGraphics.myCards) do
+for i := 0 to high(gameGraphics.myCards) do
   begin
     try
       with gameGraphics.myCards[i] do
@@ -317,10 +314,27 @@ begin
         visible := false;
         Free;
       end;
+      for l := 0 to high(gameGraphics.cardLetters[i]) do
+      begin
+        with gameGraphics.cardLetters[i][l] do
+        begin
+          visible := false;
+          Free;
+        end;
+      end;
     except
-      Writeln('Exception!');
+      Writeln('Exception in the index ' + ToStr(i));
     end;
   end;
+end;
+
+procedure canvasDrawCards;
+var
+  myLabels:Array[0..1] of TLabel;
+  i, l:Integer;
+begin
+  drawCards();
+  clearDraw();
   setLength(gameGraphics.myCards, length(myPlayer.cards));
   for i := 0 to high(gameGraphics.myCards) do
   begin
@@ -335,16 +349,22 @@ begin
     end;
   end;
   setLength(gameGraphics.cardLetters, length(myPlayer.cards));
-  for i := 0 to high(gameGraphics.cardLetters) do
+  for i := 0 to high(myPlayer.cards) do
+    setLength(gameGraphics.cardLetters[i], 2);
+  for l := 0 to high(gameGraphics.cardLetters) do
   begin
-    gameGraphics.cardLetters[i] := TLabel.create(myBoard.main);
-    with gameGraphics.cardLetters[i] do
+    for i := 0 to high(gameGraphics.cardLetters[l]) do
     begin
-      parent := myBoard.main;
-      Caption := TDeck[myPlayer.cards[i]].name[1];
-      font.color := getCardColor(myPlayer.cards[i]);
-      top := 50;
-      left := 50 + (i * 50);
+      gameGraphics.cardLetters[l][i] := TLabel.create(myBoard.main);
+      with gameGraphics.cardLetters[l][i] do
+      begin
+        parent := myBoard.main;
+        Caption := TDeck[myPlayer.cards[l]].name[1];
+        font.color := getCardColor(myPlayer.cards[l]);
+        font.size := 12;
+        top := (gameGraphics.myCards[l].top - 1) + (i * 80);
+        left := (gameGraphics.myCards[l].left + 1) + (i * 50);
+      end;
     end;
   end;
 end;
