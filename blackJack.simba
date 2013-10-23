@@ -1,4 +1,4 @@
-program dicingGame;
+program blackJack;
 
 
 
@@ -17,20 +17,34 @@ type player = record
 end;
 
 type gameBoard = record
-  main, menu, load:TForm;
+  main, menu, load, new:TForm;
   menuLabels:Array[0..3] of TLabel;
+  newPlayerLabel:TLabel;
   loadedPlayers:TListBox;
 end;
+
+type textField = record
+  newEdit:TEdit;
+end;
+
+type gameObject = record
+  gameAvatars:Array[0..3] of Integer;
+end;
+
 
 var
   TDeck: array [0..51] of Tcard;
   validCards:TIntegerArray;
   names, types:TStringArray;
-  i: Integer;
   myPlayer:player;
   placeHolder:string;
   myBoard:gameBoard;
+  gameObjects:gameObject;
+  textFields:textField;
 
+procedure loadBMP;
+begin
+end;
 function getValue(card:string):Integer;
 begin
   case card of
@@ -146,7 +160,7 @@ end;
 
 function cardTotal(cardArray:TIntegerArray):Integer;
 var
-  aceCount:Integer;
+  aceCount, i:Integer;
 begin
   for i := 0 to high(cardArray) do
     result := result + TDeck[cardArray[i]].value;
@@ -171,19 +185,7 @@ begin
   result := (cardTotal(cardArray) = 21);
 end;
 
-procedure BetProc(str1, str2:string);
-var
-  bet:string;
-begin
-  InputQuery(str1, str2, bet);
-  if ((myPlayer.cash - StrToInt64(bet)) < 1) then
-  begin
-  //  Writeln('You do not have that much money!(',(myPlayer.cash - StrToInt64(bet)),')');
-   // betProc(str1, str2);
-  end;
-end;
-
-procedure saveGame();
+function saveGame():boolean;
 var
   s:String;
   tempFile:Integer;
@@ -197,8 +199,10 @@ begin
     saveFile('[losses=]' + ToStr(myPlayer.losses) + '[/losses]', s);
     saveFile('[upcards=]' + ToStr(myPlayer.upCards) + '[/upcards]', s);
     saveFile('[downcards=]' + ToStr(myPlayer.downCards) + '[/downcards]', s);
+    result := true;
   except
     Writeln('Error saving game');
+    result := false;
   finally
     closeFile(tempFile);
   end;
@@ -248,13 +252,23 @@ begin
     result := (s[i] = (name +'.' + ext));
 end;
 
-procedure namePlayer();
+procedure newPlayer();
 begin
-  Inputquery('Input name','What would you like your name to be?', myPlayer.name);
-  if (myPlayer.name = '') then
+  myBoard.new.SHOWMODAL;
+end;
+
+procedure namePlayer(sender:TObject);
+begin
+  if (sender = myBoard.newPlayerLabel) then
   begin
-    Writeln('You must enter a player name!');
-    namePlayer();
+    if (textFields.newEdit.text = '') then
+    begin
+      MessageBox('You must enter in a name!', 'Error', 0);
+      exit;
+    end;
+    myPlayer.name := textFields.newEdit.TEXT;
+    if saveGame() then
+      writeLn('Successfully saved: ' + appPath + 'BlackJack\Profiles\' + myPlayer.name + '.txt');
   end;
 end;
 
@@ -271,7 +285,7 @@ end;
 procedure FuckYou(sender:TObject);
 begin
   case sender of
-    myBoard.menuLabels[0]: namePlayer();
+    myBoard.menuLabels[0]: newPlayer();
     myBoard.menuLabels[1]: loadPlayers();
     myBoard.menuLabels[2]: openWebPage('http://www.pagat.com/banking/blackjack.html');
     myBoard.menuLabels[3]: writeln('TODO');
@@ -330,7 +344,7 @@ begin
      // Onclick := @Fuckyou;
   end;
 
-  text := ['New Game', 'Load Game','Instructions','Quit'];
+  text := ['New Game', 'Select Player','Instructions','Quit'];
   for i := 0 to high(myBoard.menuLabels) do
   begin
     myBoard.menuLabels[i] := TLabel.create(myBoard.menu);
@@ -348,6 +362,42 @@ begin
       onClick := @Fuckyou;
     end;
   end;
+   //newPlayerLabel
+  myBoard.new := TForm.Create(nil);
+  with myBoard.new do
+  begin
+    Caption := 'New Player - by the capable Officer Barbrady';
+    top := 240;
+    left := 270;
+    width :=300;
+    height := 200;
+    color := 7590888;
+  end;
+
+  myBoard.newPlayerLabel := TLabel.Create(myBoard.new);
+  with myBoard.newPlayerLabel do
+  begin
+    Parent := myBoard.new;
+    caption := 'Create Player';
+    top := 150;
+    left := 95;
+    font.size := 12;
+    color := 16777215;
+    onClick := @namePlayer;
+  end;
+
+
+  textFields.newEdit := Tedit.create(myBoard.new);
+  with textFields.newEdit do
+  begin
+    parent := myBoard.new;
+    top := 35;
+    left := 75;
+    width :=140;
+    Height := 17;
+    Caption := 'Enter nickname';
+  end;
+
   tsa := Getfiles(AppPath + 'BlackJack\Profiles\', 'txt');
   for i := 0 to high(tsa) do
     myBoard.loadedPlayers.ITEMS.Add(replace(tsa[i], '.txt', '', [rfReplaceAll]));
@@ -376,9 +426,7 @@ begin
   SetLength(V, 0);
   ThreadSafeCall('ShowFormModal', v);
 end;
-var
-  g:Integer;
-  cArray:TIntegerArray;
+
 begin
   Types := ['Clubs', 'Spades', 'Hearts', 'Diamands'];
   Names := ['Ace', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'Jack', 'Queen', 'King'];
