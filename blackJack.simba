@@ -32,6 +32,7 @@ type gameObject = record
   gameAvatars:Array[0..3] of Integer;
   myCards:Array of TShape;
   cardLetters:array of Array of TLabel; //pwned
+  cardBitmaps:Array[0..3] of TBitmap;
 end;
 
 
