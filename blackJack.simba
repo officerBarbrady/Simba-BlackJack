@@ -86,6 +86,15 @@ begin
   TIA[(aL - 1)] := Integer(x);
 end;
 
+procedure initValid;
+var
+  i:Integer;
+begin
+  setLength(validCards, 52);
+  for i := 0 to high(validCards) do
+    validCards[i] := i;
+end;
+
 procedure loadDeck;
 var
   i, l, j: Integer;
@@ -170,7 +179,7 @@ begin
   end;
   if (result > 21) then
   begin
-    for i := 0 to aceCount do
+    for i := 0 to (aceCount - 1) do
     begin
       result := result - 10;
       if (result <= 21) then
@@ -299,7 +308,9 @@ end;
 
 function firstLetter(str:string):string;
 begin
-  result := str[0];
+  result := str[1];
+  if (str = '10') then
+    result := '10';
 end;
 
 procedure clearDraw();
@@ -310,17 +321,11 @@ for i := 0 to high(gameGraphics.myCards) do
   begin
     try
       with gameGraphics.myCards[i] do
-      begin
-        visible := false;
         Free;
-      end;
       for l := 0 to high(gameGraphics.cardLetters[i]) do
       begin
         with gameGraphics.cardLetters[i][l] do
-        begin
-          visible := false;
           Free;
-        end;
       end;
     except
       Writeln('Exception in the index ' + ToStr(i));
@@ -333,8 +338,22 @@ var
   myLabels:Array[0..1] of TLabel;
   i, l:Integer;
 begin
-  drawCards();
-  clearDraw();
+  try
+    if (cardTotal(myPlayer.cards) > 21) then
+    begin
+      Writeln('BUST!');
+      exit;
+    end;
+    drawCards();
+    clearDraw();
+  except
+    Writeln('Exception in clearing draw freeing all memory!');
+    myPlayer.cards := [];
+    clearDraw();
+  end;
+  Writeln('Card total: ' + ToStr(cardTotal(myPlayer.cards)));
+  if blackJack(myPlayer.cards)  then
+    Writeln('BLACK JACK!');
   setLength(gameGraphics.myCards, length(myPlayer.cards));
   for i := 0 to high(gameGraphics.myCards) do
   begin
@@ -359,11 +378,13 @@ begin
       with gameGraphics.cardLetters[l][i] do
       begin
         parent := myBoard.main;
-        Caption := TDeck[myPlayer.cards[l]].name[1];
+        Caption := firstLetter(TDeck[myPlayer.cards[l]].name)
         font.color := getCardColor(myPlayer.cards[l]);
         font.size := 12;
         top := (gameGraphics.myCards[l].top - 1) + (i * 80);
         left := (gameGraphics.myCards[l].left + 1) + (i * 50);
+        if (TDeck[myPlayer.cards[l]].name = '10') then
+          left := (gameGraphics.myCards[l].left + 1) + (i * 45);
       end;
     end;
   end;
@@ -373,6 +394,13 @@ procedure handleRequest(sender:TObject);
 begin
   case sender of
     textFields.playerOptions[0]: canvasDrawCards;
+    textFields.playerOptions[1]: clearDraw();
+    textFields.playerOptions[2]:
+    begin
+      clearDraw();
+      myPlayer.cards := [];
+      initValid;
+    end;
   end;
 end;
 
@@ -393,7 +421,7 @@ begin
     color := 2909715;
   end;
 
-  text := ['Hit', 'Stay','Fold'];
+  text := ['Hit', 'Stay','Restart'];
   for i := 0 to high(textFields.playerOptions) do
   begin
     textFields.playerOptions[i] := TLabel.create(myBoard.main);
@@ -402,9 +430,10 @@ begin
       Parent := myBoard.main;
       Caption := text[i];
       font.color := 0;
+      font.size := 14;
       onClick := @handleRequest;
-      left := 50 + (i * 70);
-      top := 100;
+      left := 200 + (i * 70);
+      top := 300;
     end;
   end;
 
@@ -525,15 +554,6 @@ var
 begin
   SetLength(V, 0);
   ThreadSafeCall('ShowFormModal', v);
-end;
-
-procedure initValid;
-var
-  i:Integer;
-begin
-  setLength(validCards, 52);
-  for i := 0 to high(validCards) do
-    validCards[i] := i;
 end;
 
 begin
