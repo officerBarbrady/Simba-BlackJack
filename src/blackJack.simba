@@ -32,7 +32,9 @@ type gameObject = record
   gameAvatars:Array[0..3] of Integer;
   myCards:Array of TShape;
   cardLetters:array of Array of TLabel; //pwned
-  cardBitmaps:Array[0..3] of TBitmap;
+  cardBitmaps: Array[0..3] of TImage;
+  bmps0: Array[0..3] of TMufasaBitmap;
+  bmp0: Array[0..3] TBitmap;
 end;
 
 
@@ -334,6 +336,16 @@ for i := 0 to high(gameGraphics.myCards) do
   end;
 end;
 
+function getCardImage(index:Integer):TMufasaBitmap;
+begin
+  case TDeck[index].cardType of
+    'Clubs':result := getMufasaBitmap(BitmapFromString(90,90,'meJwDAAAAAAE='));
+    'Spades':result := getMufasaBitmap(BitmapFromString(90,90,'meJwDAAAAAAE='));
+    'Hearts':result := getMufasaBitmap(BitmapFromString(90,90,'meJwDAAAAAAE='));
+    'Diamands':result := getMufasaBitmap(BitmapFromString(90,90,'meJwDAAAAAAE='));
+  end;
+end;
+
 procedure canvasDrawCards;
 var
   myLabels:Array[0..1] of TLabel;
@@ -388,6 +400,19 @@ begin
           left := (gameGraphics.myCards[l].left + 1) + (i * 45);
       end;
     end;
+  end;
+  gameGraphics.cardBitmaps[i] := TImage.Create(myBoard.main);
+  with gameGraphics.cardBitmaps[i] do
+    begin
+      Parent := DsgnForm;
+      Left := 75;
+      Top := 20;
+      Width := 90;
+      Height := 90;
+      bmps0[i] := GetMufasaBitmap(BitmapFromString(90,90,'meJwDAAAAAAE='));
+      GetMufasaBitmap(
+      bmp0[i] := bmps0[i].ToTBitmap;
+      Picture.Bitmap.handle := bmp0[i].handle;
   end;
 end;
 
