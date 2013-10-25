@@ -34,7 +34,7 @@ type gameObject = record
   cardLetters:array of Array of TLabel; //pwned
   cardBitmaps: Array[0..3] of TImage;
   bmps0: Array[0..3] of TMufasaBitmap;
-  bmp0: Array[0..3] TBitmap;
+  bmp0: Array[0..3] of TBitmap;
 end;
 
 
@@ -339,10 +339,36 @@ end;
 function getCardImage(index:Integer):TMufasaBitmap;
 begin
   case TDeck[index].cardType of
-    'Clubs':result := getMufasaBitmap(BitmapFromString(90,90,'meJwDAAAAAAE='));
-    'Spades':result := getMufasaBitmap(BitmapFromString(90,90,'meJwDAAAAAAE='));
-    'Hearts':result := getMufasaBitmap(BitmapFromString(90,90,'meJwDAAAAAAE='));
-    'Diamands':result := getMufasaBitmap(BitmapFromString(90,90,'meJwDAAAAAAE='));
+    'Clubs':result := getMufasaBitmap(BitmapFromString(24, 24, 'meJytlC+owlAUxl/QyeJYsEzjqs' +'U0cUEMCqLVOBg8tqVZJiKibRaLiEGDXSyioH3VJhhExGAXNfgnqAc' +'HY+jufZenX9rZ/c6Pe86999zvSFmWpWkay7J+vz+RSLRaLbQXqXq9' + '/vOmWCx2Pp/JIcPh8B1iKx6Pk3OCwSCKA5pMJiSQ4/GIgYBqtRoJZ' +'7PZfIUDwnNM0yTk5PN5DOdwOKAS4YDC4bDjTKfTKIggCBzHOaGiKJ' +'fLxYY0m018IXhFo9Hr9bpcLj+B2CoWi9Vq9XNOIBCAej/ngJLJ5Fc' +'45XIZb1BVNZfL4T0+n2+xWGAMPM+v12u4wLquY2yFQgHOvVKpeK6G' +'QqH5fN5ut1OpFNgymYynLRKJOMOk0+nA3tyrkiTt93tYMgwDQtvW6' +'/UYhnHbstksvOuXWz2dTmF8DQYD97CiaRr8/X7f+TObzRqNRrfb3e' +'12hA+tVCo5jbrdboRZLxqPx+4SYET/A+J5H0RRXK1Wf+aeTifoJDS' +'WoijMKUNvoY3b7RbFkWVZego+fp/yDEF2OBqNnNwHRD70iw=='));
+    'Spades':result := getMufasaBitmap(BitmapFromString(19, 25, 'meJydkzHLglAUhi8VEdFvCNvsI6' +
+        'LGxqQpmpqaokGS1oYWwUz8C0E0NDQ2S2CLNqSE9BccMqQlcG6oDl4' +
+        '+CVPTnunec+4Det57n89QNptNeDOKTqdzPp+TWpZlIYTG43FSsdfr' +
+        'IRfbtuNb2+0W/dNsNmNax+MxlUqhNwaDwVfrdDoVCgX0wWQyibA0T' +
+        'cvn858WhmGYQGu/32cymTAL0+12fZaqqtGKB4TrWYZh+KYRDU3TWK' +
+        'xWq/EtDOS1Wq2SWkCj0WBZ9gcRubfxN5Hn+bBWvV4vlUqBrWw2e71' +
+        'eA0fa7/dHo5Gu64Hd6XQKU1UUJZ1Ov9c5joM6SZKQ1OFwIAjivdtu' +
+        't70oHccRBIF3MU0TF+HMbDbD68Vigbu73S76ti+XSxAh4uhjPu73e' +
+        '7FYxB8mSVJ8sdVqeX+Uy+XgrX1VbrcbRVG+GcJbk2U58Pzj8Viv18' +
+        'PhMCxToFariaJ4uVw8az6f/7mQLuVyGW9hgSu+baVSAesF3eC7Og=='));
+    'Hearts':result := getMufasaBitmap(BitmapFromString(21, 24, 'meJz7/x8E/v3719PzuqzsaV7eg4' +
+        'aGV8+e/fqPAaZMeVNS8iQj4zFQwbVrP+Dix49/lZC4wcBwBRktWvQ' +
+        'eruDMmW+qqrfQFLS1vQBKffr0i4/vKpoUBK1b9wmo4N27X0JC17Aq' +
+        'WLHiQ339K6xSQMTMfOXnz38pKY9wKeDhuWZkhO4qZFRb+wyPLBAJC' +
+        '2N3GAQxMeHTC0ROTvfwK8CPgLFAtl5R0RsPHnwhW3t9/cvfv3+npz' +
+        '8mQy8wWL59+wuM2T9//ikp4Qt/rGjChBfwdHX48FeS9Nra3kNL0nv' +
+        '3EhsIeno3f/36jZkpioqeE9QLTIpXrnzH1AsBFhYEAmHLlve49ALB' +
+        'o0c/ODhwpsPU1Md49ELA9u2fseo1MblFUC8EhIY+xNSOXETgBz9+/' +
+        'JKQQPHC5MmvidQLAZs2vYfrNTa+Q5JeCLCxgcbC/v1fyNC+bdsHoF' +
+        '4bG/QERjyQkbk5f/5bsrUDSwP8CgDC3Xht'));
+    'Diamands':result := getMufasaBitmap(BitmapFromString(18, 25, 'meJz7/x8nuHPnO25J7GDLlk82Nr' +
+        'dI0vL9+y9R0esMDFeWLHlHvK7w8EdALUDEynr19es/xGjZvv0DRAs' +
+        'EOTvfJ6jlw4dfQkLXkXUB0cKF7/HrcnG5j6YFgi5cwBmekya9wKoF' +
+        'iAwM7vz69RtTy+HDX3FpgSB//4doWt6+/Skqeg2/LnBEoHjQ0vIWQ' +
+        'S0QdPDgF4gWH5+HRGoBIj6+a/fu/ZwyBWcI4AmZ27d/cnFdJUlXU9' +
+        'MzoAuBTiVei6fnA3horFr1lhgtFhbouSAm5jF+Lfz8154//4EZ0eb' +
+        'm+MJ/z54PWFPU/fs/2Niwh0xb20tc6RAItm37jKmFmEwdEHAXWQsr' +
+        '65WnT7F4Bw38+fNPRuYmXNfq1cQWArt3Q2PQze0BYdVIICTkESPjl' +
+        'SdPCLsNGQDzzuTJb3DJAgBQhIlP'));
   end;
 end;
 
@@ -401,18 +427,23 @@ begin
       end;
     end;
   end;
-  gameGraphics.cardBitmaps[i] := TImage.Create(myBoard.main);
-  with gameGraphics.cardBitmaps[i] do
-    begin
-      Parent := DsgnForm;
-      Left := 75;
-      Top := 20;
-      Width := 90;
-      Height := 90;
-      bmps0[i] := GetMufasaBitmap(BitmapFromString(90,90,'meJwDAAAAAAE='));
-      GetMufasaBitmap(
-      bmp0[i] := bmps0[i].ToTBitmap;
-      Picture.Bitmap.handle := bmp0[i].handle;
+  setLength(gameGraphics.cardBitmaps, length(myPlayer.cards));
+  setLength(gameGraphics.bmps0, length(myPlayer.cards));
+  setLength(gameGraphics.bmp0, length(myPlayer.cards));
+  for i := 0 to high(gameGraphics.cardBitmaps) do
+  begin
+    gameGraphics.cardBitmaps[i] := TImage.Create(myBoard.main);
+    gameGraphics.bmps0[i] := getCardImage(myPlayer.cards[i]);
+    gameGraphics.bmp0[i] := gameGraphics.bmps0[i].ToTBitmap;
+    with gameGraphics.cardBitmaps[i] do
+      begin
+        Parent := myBoard.main;
+        Left := (Round(gameGraphics.myCards[i].left / 2));
+        Top := (Round(gameGraphics.myCards[i].top / 2));
+        Picture.Bitmap.handle := gameGraphics.bmp0[i].handle;
+        Width := 25;
+        Height := 25;
+    end;
   end;
 end;
 
