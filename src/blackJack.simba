@@ -32,9 +32,9 @@ type gameObject = record
   gameAvatars:Array[0..3] of Integer;
   myCards:Array of TShape;
   cardLetters:array of Array of TLabel; //pwned
-  cardBitmaps: Array[0..3] of TImage;
-  bmps0: Array[0..3] of TMufasaBitmap;
-  bmp0: Array[0..3] of TBitmap;
+  cardBitmaps: Array of TImage;
+  bmps0: Array of TMufasaBitmap;
+  bmp0: Array of TBitmap;
 end;
 
 
@@ -325,6 +325,10 @@ for i := 0 to high(gameGraphics.myCards) do
     try
       with gameGraphics.myCards[i] do
         Free;
+      with gameGraphics.cardBitmaps[i] do
+        Free;
+      with gameGraphics.bmps0[i] do
+        Free;
       for l := 0 to high(gameGraphics.cardLetters[i]) do
       begin
         with gameGraphics.cardLetters[i][l] do
@@ -340,11 +344,7 @@ function getCardImage(index:Integer):TMufasaBitmap;
 begin
   case TDeck[index].cardType of
     'Clubs':result := getMufasaBitmap(BitmapFromString(24, 24, 'meJytlC+owlAUxl/QyeJYsEzjqs' +'U0cUEMCqLVOBg8tqVZJiKibRaLiEGDXSyioH3VJhhExGAXNfgnqAc' +'HY+jufZenX9rZ/c6Pe86999zvSFmWpWkay7J+vz+RSLRaLbQXqXq9' + '/vOmWCx2Pp/JIcPh8B1iKx6Pk3OCwSCKA5pMJiSQ4/GIgYBqtRoJZ' +'7PZfIUDwnNM0yTk5PN5DOdwOKAS4YDC4bDjTKfTKIggCBzHOaGiKJ' +'fLxYY0m018IXhFo9Hr9bpcLj+B2CoWi9Vq9XNOIBCAej/ngJLJ5Fc' +'45XIZb1BVNZfL4T0+n2+xWGAMPM+v12u4wLquY2yFQgHOvVKpeK6G' +'QqH5fN5ut1OpFNgymYynLRKJOMOk0+nA3tyrkiTt93tYMgwDQtvW6' +'/UYhnHbstksvOuXWz2dTmF8DQYD97CiaRr8/X7f+TObzRqNRrfb3e' +'12hA+tVCo5jbrdboRZLxqPx+4SYET/A+J5H0RRXK1Wf+aeTifoJDS' +'WoijMKUNvoY3b7RbFkWVZego+fp/yDEF2OBqNnNwHRD70iw=='));
-    'Spades':result := getMufasaBitmap(BitmapFromString(19, 25, 'meJydkzHLglAUhi8VEdFvCNvsI6' +
-        'LGxqQpmpqaokGS1oYWwUz8C0E0NDQ2S2CLNqSE9BccMqQlcG6oDl4' +
-        '+CVPTnunec+4Det57n89QNptNeDOKTqdzPp+TWpZlIYTG43FSsdfr' +
-        'IRfbtuNb2+0W/dNsNmNax+MxlUqhNwaDwVfrdDoVCgX0wWQyibA0T' +
-        'cvn858WhmGYQGu/32cymTAL0+12fZaqqtGKB4TrWYZh+KYRDU3TWK' +
+    'Spades':result := getMufasaBitmap(BitmapFromString(19, 25, 'meJydkzHLglAUhi8VEdFvCNvsI6' +'LGxqQpmpqaokGS1oYWwUz8C0E0NDQ2S2CLNqSE9BccMqQlcG6oDl4' +'+CVPTnunec+4Det57n89QNptNeDOKTqdzPp+TWpZlIYTG43FSsdfr' +'IRfbtuNb2+0W/dNsNmNax+MxlUqhNwaDwVfrdDoVCgX0wWQyibA0T' +'cvn858WhmGYQGu/32cymTAL0+12fZaqqtGKB4TrWYZh+KYRDU3TWK' +
         'xWq/EtDOS1Wq2SWkCj0WBZ9gcRubfxN5Hn+bBWvV4vlUqBrWw2e71' +
         'eA0fa7/dHo5Gu64Hd6XQKU1UUJZ1Ov9c5joM6SZKQ1OFwIAjivdtu' +
         't70oHccRBIF3MU0TF+HMbDbD68Vigbu73S76ti+XSxAh4uhjPu73e' +
@@ -430,7 +430,7 @@ begin
   setLength(gameGraphics.cardBitmaps, length(myPlayer.cards));
   setLength(gameGraphics.bmps0, length(myPlayer.cards));
   setLength(gameGraphics.bmp0, length(myPlayer.cards));
-  for i := 0 to high(gameGraphics.cardBitmaps) do
+  for i := 0 to high(myPlayer.cards) do
   begin
     gameGraphics.cardBitmaps[i] := TImage.Create(myBoard.main);
     gameGraphics.bmps0[i] := getCardImage(myPlayer.cards[i]);
@@ -438,8 +438,8 @@ begin
     with gameGraphics.cardBitmaps[i] do
       begin
         Parent := myBoard.main;
-        Left := (Round(gameGraphics.myCards[i].left / 2));
-        Top := (Round(gameGraphics.myCards[i].top / 2));
+        Left := (Round(gameGraphics.myCards[i].left + 20));
+        Top := (Round(gameGraphics.myCards[i].top + 35));
         Picture.Bitmap.handle := gameGraphics.bmp0[i].handle;
         Width := 25;
         Height := 25;
