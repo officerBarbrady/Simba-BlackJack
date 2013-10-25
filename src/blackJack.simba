@@ -377,19 +377,18 @@ var
   myLabels:Array[0..1] of TLabel;
   i, l:Integer;
 begin
-  try
-    if (cardTotal(myPlayer.cards) > 21) then
-    begin
-      Writeln('BUST!');
-      exit;
-    end;
-    drawCards();
-    clearDraw();
-  except
-    Writeln('Exception in clearing draw freeing all memory!');
-    myPlayer.cards := [];
-    clearDraw();
+  if (cardTotal(myPlayer.cards) > 21) then
+  begin
+    Writeln('BUST!');
+    exit;
   end;
+  drawCards();
+  clearDraw();
+  Writeln('Debug card letters ' + ToStr(length(gameGraphics.cardLetters)));
+  Writeln('Debug my cards ' + ToStr(length(gameGraphics.myCards)));
+  Writeln('Debug images TImage ' + ToStr(length(gameGraphics.cardBitmaps)));
+  Writeln('Debug images bmps0 ' + ToStr(length(gameGraphics.bmps0)));
+  Writeln('Debug images bmp ' + ToStr(length(gameGraphics.bmp0)));
   Writeln('Card total: ' + ToStr(cardTotal(myPlayer.cards)));
   if blackJack(myPlayer.cards)  then
     Writeln('BLACK JACK!');
@@ -470,7 +469,7 @@ begin
 
   with myBoard.main do
   begin
-    Caption := 'Black Jack - by the capable Officer Barbrady';
+    Caption := 'Black Jack';
     top := 200;
     left := 200;
     width := 670;
