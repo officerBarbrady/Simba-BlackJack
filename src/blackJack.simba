@@ -9,9 +9,16 @@ type Tcard = record
   index:Integer;
 end;
 
+type Tchips = record
+  white, red, blue, green, black:Integer;
+  chipBitmaps: Array of TImage;
+  bmps0: Array of TMufasaBitmap;
+  bmp0: Array of TBitmap;
+end;
+
 type player = record
   name:string;
-  cash:Int64;
+  cash:Tchips;
   wins, losses:Integer;
   cards:TIntegerArray;
 end;
@@ -43,7 +50,6 @@ var
   validCards:TIntegerArray;
   names, types:TStringArray;
   myPlayer:player;
-  placeHolder:string;
   myBoard:gameBoard;
   gameGraphics:gameObject;
   textFields:textField;
@@ -204,7 +210,7 @@ begin
   tempFile := RewriteFile(appPath + 'BlackJack\Profiles\' + myPlayer.name + '.txt', True);
   try
     s := myPlayer.name;
-    saveFile('[cash=]' + Int64ToStr(myPlayer.cash) + '[/cash]', s);
+   // saveFile('[cash=]' + Int64ToStr(myPlayer.cash) + '[/cash]', s);
     saveFile('[name=]' + myPlayer.name + '[/name]', s);
     saveFile('[wins=]' + ToStr(myPlayer.wins) + '[/wins]', s);
     saveFile('[losses=]' + ToStr(myPlayer.losses) + '[/losses]', s);
@@ -227,7 +233,7 @@ begin
   ReadFileString(tmpFile, info, 250);
   Writeln(info);
   try
-    myPlayer.cash := StrToInt64(Between('[cash=]', '[/cash]', info));
+   // myPlayer.cash := StrToInt64(Between('[cash=]', '[/cash]', info));
     myPlayer.name := Between('[name=]', '[/name]', info);
     myPlayer.wins := StrToInt(Between('[wins=]', '[/wins]', info));
     myPlayer.losses := StrToInt(Between('[losses=]', '[/losses]', info));
@@ -244,7 +250,7 @@ end;
 procedure startGame();
 begin
   saveFile('==', myPlayer.name);
-  myPlayer.cash := random(1000000) + 50000;
+  //myPlayer.cash := random(1000000) + 50000;
   saveGame();
   Writeln('====================================');
   Writeln('Starting cash: ' + ToStr(myPlayer.cash));
@@ -282,9 +288,6 @@ begin
 end;
 
 procedure loadPlayers();
-var
-  tsa:TStringArray;
-  i:Integer;
 begin
   myBoard.load.SHOWMODAL;
 
@@ -314,6 +317,32 @@ begin
   result := str[1];
   if (str = '10') then
     result := '10';
+end;
+
+function cashToChips(amt:Integer):TChips;
+var
+  i:Integer;
+begin
+  if ((amt - 100) >= 100) then
+  begin
+    for i := 0 to ((amt div 100) - 1) do
+      result.black := result.black + 1;
+  end;
+  if ((amt - ((result.black * 100) - 25)) >= 25) then
+  begin
+    for i := 0 to (((amt - (result.black * 100)) div 25) - 1) do
+      result.green := result.green + 1;
+  end;
+  if ((amt - ((result.black * 100) + (result.green * 25) - 10) >= 10)) then
+  begin
+    for i := 0 to (((amt - ((result.black * 100) + (result.green * 25))) div 10) - 1) do
+      result.blue := result.blue + 1;
+  end;
+  if ((amt - ((result.black * 100) + (result.green * 25) + (result.blue * 10) - 1) >= 1)) then
+  begin
+    for i := 0 to (((amt - ((result.black * 100) + (result.green * 10) + (result.blue * 5))) div 5) - 1) do
+      result.red := result.red + 1;
+  end;
 end;
 
 procedure clearDraw();
@@ -350,9 +379,59 @@ begin
   end;
 end;
 
+function getChipStack(chips:TChips):TChips;
+begin
+  result.black := round(chips.black / 5);
+  if (chips.black > 50) then
+    result.black := 10;
+  result.green := round(chips.green / 5);
+  if (chips.green > 50) then
+    result.green := 10;
+  result.blue := round(chips.blue / 5);
+  if (chips.blue > 50) then
+    result.blue := 10;
+  result.red := round(chips.red / 5);
+  if (chips.red > 50) then
+    result.red := 10;
+  result.white := round(chips.white / 5);
+  if (chips.white > 50) then
+    result.white := 10;
+end;
+
+
+procedure canvasDrawChips;
+var
+  i, l:Integer;
+  myStack:TChips;
+  intArr:TIntegerArray;
+begin
+  //chipBitmaps: Array of TImage;
+  //bmps0: Array of TMufasaBitmap;
+ // bmp0: Array of TBitmap;
+  myStack := getChipStack(myPlayer.cash);
+  setLength(myPlayer.cash.chipBitmaps[0], myStack.white);
+  setLength(myPlayer.cash.chipBitmaps[1], myStack.red);
+  setLength(myPlayer.cash.chipBitmaps[2], myStack.blue);
+  setLength(myPlayer.cash.chipBitmaps[3], myStack.green);
+  setLength(myPlayer.cash.chipBitmaps[4], myStack.black);
+  for i := 0 to high(myPlayer.cash.chipBitmaps[i]) do
+    begin
+      myPlayer.cash.chipBitmaps[i] := TImage.Create(myBoard.main);
+      myPlayer.cash.bmps0[i] := getCardImage(myPlayer.cards[i]);
+      myPlayer.cash.bmp0[i] := gameGraphics.bmps0[i].ToTBitmap;
+      with gameGraphics.cardBitmaps[i] do
+        begin
+          Parent := myBoard.main;
+          Left := 40 + (i*10);
+          Top := 200 + (i*10);
+          Picture.Bitmap.handle := myPlayer.cash.bmp0[i].handle;
+      end;
+    end;
+  end;
+end;
+
 procedure canvasDrawCards;
 var
-  myLabels:Array[0..1] of TLabel;
   i, l:Integer;
 begin
   if (cardTotal(myPlayer.cards) > 21) then
@@ -362,11 +441,11 @@ begin
   end;
   drawCards();
   clearDraw();
-  //Writeln('Debug card letters ' + ToStr(length(gameGraphics.cardLetters)));
- // Writeln('Debug my cards ' + ToStr(length(gameGraphics.myCards)));
- // Writeln('Debug images TImage ' + ToStr(length(gameGraphics.cardBitmaps)));
-  //Writeln('Debug images bmps0 ' + ToStr(length(gameGraphics.bmps0)));
- // Writeln('Debug images bmp ' + ToStr(length(gameGraphics.bmp0)));
+  Writeln('Debug card letters ' + ToStr(length(gameGraphics.cardLetters)));
+  Writeln('Debug my cards ' + ToStr(length(gameGraphics.myCards)));
+  Writeln('Debug images TImage ' + ToStr(length(gameGraphics.cardBitmaps)));
+  Writeln('Debug images bmps0 ' + ToStr(length(gameGraphics.bmps0)));
+  Writeln('Debug images bmp ' + ToStr(length(gameGraphics.bmp0)));
   Writeln('Card total: ' + ToStr(cardTotal(myPlayer.cards)));
   if blackJack(myPlayer.cards)  then
     Writeln('BLACK JACK!');
@@ -418,8 +497,8 @@ begin
         Left := (Round(gameGraphics.myCards[i].left + 20));
         Top := (Round(gameGraphics.myCards[i].top + 35));
         Picture.Bitmap.handle := gameGraphics.bmp0[i].handle;
-        Width := 25;
-        Height := 25;
+       // Width := 25;
+        //Height := 25;
     end;
   end;
 end;
