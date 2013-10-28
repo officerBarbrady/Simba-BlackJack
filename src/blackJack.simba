@@ -379,6 +379,12 @@ begin
   end;
 end;
 
+function getChipImage(index:Integer):TMufasaBitmap;
+begin
+  case index of
+  end;
+end;
+
 function getChipStack(chips:TChips):TChips;
 begin
   result.black := round(chips.black / 5);
@@ -415,17 +421,16 @@ begin
   setLength(myPlayer.cash.chipBitmaps[3], myStack.green);
   setLength(myPlayer.cash.chipBitmaps[4], myStack.black);
   for i := 0 to high(myPlayer.cash.chipBitmaps[i]) do
+  begin
+    myPlayer.cash.chipBitmaps[i] := TImage.Create(myBoard.main);
+    myPlayer.cash.bmps0[i] := getCardImage(myPlayer.cards[i]);
+    myPlayer.cash.bmp0[i] := gameGraphics.bmps0[i].ToTBitmap;
+    with gameGraphics.cardBitmaps[i] do
     begin
-      myPlayer.cash.chipBitmaps[i] := TImage.Create(myBoard.main);
-      myPlayer.cash.bmps0[i] := getCardImage(myPlayer.cards[i]);
-      myPlayer.cash.bmp0[i] := gameGraphics.bmps0[i].ToTBitmap;
-      with gameGraphics.cardBitmaps[i] do
-        begin
-          Parent := myBoard.main;
-          Left := 40 + (i*10);
-          Top := 200 + (i*10);
-          Picture.Bitmap.handle := myPlayer.cash.bmp0[i].handle;
-      end;
+      Parent := myBoard.main;
+      Left := 40 + (i*10);
+      Top := 200 + (i*10);
+      Picture.Bitmap.handle := myPlayer.cash.bmp0[i].handle;
     end;
   end;
 end;
