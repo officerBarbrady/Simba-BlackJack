@@ -19,6 +19,7 @@ end;
 type gameBoard = record
   main, menu, load, new:TForm;
   menuLabels:Array[0..3] of TLabel;
+  loadPlayerLabels:Array[0..1] of TLabel;
   newPlayerLabel:TLabel;
   loadedPlayers:TListBox;
 end;
@@ -495,7 +496,7 @@ begin
   myBoard.menu := TForm.Create(nil);
   with myBoard.menu do
   begin
-    Caption := 'Black Jack - by the capable Officer Barbrady';
+    Caption := 'Black Jack - by Officer Barbrady';
     top := 200;
     left := 200;
     width := 450;
@@ -506,22 +507,40 @@ begin
   myBoard.load := TForm.Create(nil);
   with myBoard.load do
   begin
-    Caption := 'Load player - by the capable Officer Barbrady';
+    Caption := 'Select player - by Officer Barbrady';
     top := 250;
     left := 350;
     width := 400;
     height := 300;
-    color := 2500134;
+    color := 4095699;
+  end;
+
+
+  text := ['Load Player', 'Delete Player'];
+  for i := 0 to high(myBoard.loadPlayerLabels) do
+  begin
+    myBoard.loadPlayerLabels[i] := TLabel.create(myBoard.load);
+    with myBoard.loadPlayerLabels[i] do
+    begin
+      Parent := myBoard.load;
+      Caption := text[i];
+      left := 30 + (i * 120);
+      top := 220;
+      font.size := 15;
+      font.color := 4497274;
+      font.name := 'Cezanne';
+      onClick := @Fuckyou;
+    end;
   end;
 
   myBoard.loadedPlayers := TListBox.Create(myBoard.load);
   with myBoard.loadedPlayers do
   begin
       Parent := myBoard.load;
-      Left := 40;
-      Top := 60;
+      Left := 130;
+      Top := 10;
       Width := 140;
-      Height := 200;
+      Height := 180;
       PARENTCOLOR := false;
       FONT.Size := 11;
       font.name := 'Times new Roman';
@@ -599,7 +618,7 @@ end;
 
 procedure ShowFormModal;
 begin
-  myBoard.main.ShowModal;
+  myBoard.menu.ShowModal;
 
 end;
 
@@ -618,7 +637,6 @@ begin
   initValid;
   SafeInitForm;
   SafeShowFormModal;
- {
   if (not DirectoryExists((appPath + 'BlackJack/Profiles'))) then
   begin
     if not ForceDirectories(appPath + 'BlackJack/Profiles') then
@@ -634,16 +652,4 @@ begin
    // AddInfo('Instructions: http://en.wikipedia.org/wiki/Blackjack', 'BlackJack/readme', False);
   end;
 
-  loadDeck;
-  Inputquery('Open game','Open existing game(y/n)?', placeHolder);
-  if (placeHolder = 'y') then
-  begin
-    Writeln('Found following files in App path: ' + ToStr(Getfiles(AppPath + 'BlackJack\Profiles\', 'txt')));
-    InputQuery('Name', ' Name of player: ', placeHolder);
-    if (not loadGame(placeHolder)) then
-      Writeln('Error loading player file, please create a new player!');
-  end;
-  if (placeHolder <> 'y') then
-    namePlayer();
-  startGame(); }
 end.
