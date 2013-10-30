@@ -353,17 +353,6 @@ begin
   end;
 end;
 
-function getChipImage(index:Integer):TMufasaBitmap;
-begin
-  case index of
-    0: result := getMufasaBitmap(BitmapFromString(13, 2, 'meJzbsmXL////txAikcEdVIAsBQDdKz53'));
-    1: result := getMufasaBitmap(BitmapFromString(13, 2, 'meJxTkXn7//9/FUIkMtq4+D8yQpYCAJ9pLzE='));
-    2: result := getMufasaBitmap(BitmapFromString(13, 2, 'meJz7nOv7////z4RIZPR+OwMyQpYCAJYWM1A='));
-    3: result := getMufasaBitmap(BitmapFromString(13, 2, 'meJzz2aj0//9/H0IkMpJ9tgIZIUsBAEt/Kxc='));
-    4: result := getMufasaBitmap(BitmapFromString(13, 2, 'meJxjYGD4//8/AyESGbihAmQpAHRsFgk='));
-  end;
-end;
-
 procedure canvasDrawCash;
 var
   i, l:Integer;
