@@ -254,6 +254,7 @@ var
   i:Integer;
 begin
   s := GetFiles(path, ext);
+  Writeln(s);
   for i := 0 to high(s) do
     result := (s[i] = (name +'.' + ext));
 end;
@@ -261,6 +262,15 @@ end;
 procedure newPlayer();
 begin
   myBoard.new.SHOWMODAL;
+end;
+
+procedure resetPlayer();
+begin
+  myPlayer.name := '';
+  myPlayer.cash := 0;
+  myPlayer.wins := 0;
+  myPlayer.losses := 0;
+  myPlayer.cards := [];
 end;
 
 procedure namePlayer(sender:TObject);
@@ -272,9 +282,20 @@ begin
       MessageBox('You must enter in a name!', 'Error', 0);
       exit;
     end;
-    myPlayer.name := textFields.newEdit.TEXT;
-    if saveGame() then
-      writeLn('Successfully saved: ' + appPath + 'BlackJack\' + myPlayer.name + '.txt');
+    case findFile(appPath + 'BlackJack\' + textFields.newEdit.TEXT, 'txt', textFields.newEdit.TEXT) of
+      True: MessageBox('Player name already exists!', 'Error', 8);
+      False:
+      begin
+        myPlayer.name := textFields.newEdit.TEXT;
+        myPlayer.cash := random(1000000) + 50000;
+        if saveGame() then
+        begin
+          writeLn('Successfully saved: ' + appPath + 'BlackJack\' + myPlayer.name + '.txt');
+          myBoard.new.CLOSE;
+        end;
+      end;
+    end;
+    resetPlayer();
   end;
 end;
 
@@ -310,16 +331,24 @@ begin
     myBoard.menuLabels[0]: newPlayer();
     myBoard.menuLabels[1]: loadPlayers();
     myBoard.menuLabels[2]: openWebPage('http://www.pagat.com/banking/blackjack.html');
-    myBoard.menuLabels[3]: writeln('TODO');
+    myBoard.menuLabels[3]:
+    begin
+      Writeln('==');
+      Writeln(myPlayer);
+    end;
     myBoard.loadPlayerLabels[0]:
     begin
       case (myBoard.loadedPlayers.ITEMINDEX > - 1) of
         True:
         case loadGame(myBoard.loadedPlayers.ITEMS.Strings[myBoard.loadedPlayers.ITEMINDEX]) of
-          True: Writeln('Loaded player ' + myPlayer.name);
+          True:
+          begin
+            Writeln('Loaded player ' + myPlayer.name);
+            myBoard.load.CLOSE;
+          end;
           False: Writeln('Error loading player file ' + myBoard.loadedPlayers.ITEMS.Strings[myBoard.loadedPlayers.ITEMINDEX] + ' file may be corrupt!');
         end;
-        False: MessageBox('No player selected!', 'Error', 1);
+        False: MessageBox('No player selected!', 'Error', 8);
       end;
     end;
     myBoard.loadPlayerLabels[1]:
