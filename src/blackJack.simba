@@ -42,6 +42,7 @@ type gameObject = record
   myCards:Array of TShape;
   cardLetters:array of Array of TLabel; //pwned
   pictures:myBitmaps;
+  cashLabel:TLabel;
 end;
 
 
@@ -215,7 +216,7 @@ begin
     result := ToStr((Round(myPlayer.cash / 1000000))) + 'M';
   if ((myPlayer.cash > 9999999999) and (myPlayer.cash < 9999999999999)) then
     result := ToStr((Round(myPlayer.cash / 1000000000))) + 'B';
-  if ((myPlayer.cash > 9999999999) and (myPlayer.cash < 9999999999999999)) then
+  if ((myPlayer.cash > 9999999999999) and (myPlayer.cash < 9999999999999999)) then
     result := ToStr((Round(myPlayer.cash / 1000000000000))) + 'T';
 end;
 
@@ -466,6 +467,48 @@ begin
   end;
 end;
 
+function getCashColor:Integer;
+begin
+  result := 65535;
+  if ((myPlayer.cash > 99999) and (myPlayer.cash < 9999999)) then
+    result := 16777215;
+  if ((myPlayer.cash > 9999999) and (myPlayer.cash < 9999999999)) then
+    result := 8846345;
+  if ((myPlayer.cash > 9999999999) and (myPlayer.cash < 9999999999999)) then
+    result := 16646144;
+  if ((myPlayer.cash > 9999999999999) and (myPlayer.cash < 9999999999999999)) then
+    result := 65776;
+end;
+
+procedure canvasDrawCashAmount();
+begin
+  gameGraphics.cashLabel := TLabel.Create(myBoard.main);
+  with gameGraphics.cashLabel do
+  begin
+    Parent := myBoard.main;
+    left := gameGraphics.pictures.cashBitmap.left;
+    top := gameGraphics.pictures.cashBitmap.top + - 15;
+    font.color := getCashColor();
+    Caption := cashString();
+  end;
+end;
+
+procedure canvasDrawCash();
+begin
+ // cashBitmap:TImage;
+  //cashBmps0:TMufasaBitmap;
+  //cashBmp0:TBitmap;
+  gameGraphics.pictures.cashBitmap := TImage.Create(myBoard.main);
+  gameGraphics.pictures.cashBmp0 := gameGraphics.pictures.cashbmps0.ToTBitmap();
+  with gameGraphics.pictures.cashBitmap do
+  begin
+    Parent := myBoard.main;
+    Left := 400;
+    Top := 400;
+    Picture.Bitmap.handle := gameGraphics.pictures.cashBmp0.handle;
+  end;
+end;
+
 procedure FuckYou(sender:TObject);
 var
   reply:Integer;
@@ -487,6 +530,8 @@ begin
             except
               Writeln('Error freeing menu form');
             finally
+              canvasDrawCash();
+              canvasDrawCashAmount();
               canvasDrawCards();
               myBoard.main.showModal;
             end;
@@ -518,22 +563,6 @@ begin
     end;
     myBoard.loadPlayerLabels[1]:
   end;
-end;
-
-procedure canvasDrawCash;
-begin
-   {
-   gameGraphics.chipBitmaps[i] := TImage.Create(myBoard.main);
-   gameGraphics.bmps0[i] := getChipImage(i);
-   gameGraphics.bmp0[i] := gameGraphics.bmps0[i].ToTBitmap;
-    with gameGraphics.cardBitmaps[i] do
-    begin
-      Parent := myBoard.main;
-      Left := 40 + (i*10);
-      Top := 200 + (i*10);
-      Picture.Bitmap.handle := myPlayer.cash.bmp0[i].handle;
-    end;
-  end; }
 end;
 
 procedure handleRequest(sender:TObject);
@@ -746,6 +775,7 @@ begin
 end;
 
 begin
+  loadBMP;
   AddOnTerminate('ClearDraw');
   AddOnTerminate('freeBMP');
   Types := ['Clubs', 'Spades', 'Hearts', 'Diamands'];
