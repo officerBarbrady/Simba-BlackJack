@@ -457,7 +457,7 @@ end;
 procedure loadBoard();
 var
   i:Integer;
-  text, tsa:TStringArray;
+  text:TStringArray;
 begin
   myBoard.main := TForm.Create(nil);
 
@@ -595,9 +595,7 @@ begin
     Caption := 'Enter nickname';
   end;
  // canvasDrawChips;
-  tsa := Getfiles(AppPath + 'BlackJack\', 'txt');
-  for i := 0 to high(tsa) do
-    myBoard.loadedPlayers.ITEMS.Add(replace(tsa[i], '.txt', '', [rfReplaceAll]));
+  updateFiles();
 
 end;
 
