@@ -138,24 +138,21 @@ begin
   until (p <= 0);
 end;
 
-function strToArr(str, bet1, bet2:string):TIntegerArray;
+function strToArr(str:string):TIntegerArray;
 var
   i:Integer;
   placeHolder:string;
+  strArr:TStringArray;
 begin
-  setLength(result, count(',', str));
-  for i := 0 to high(result) do
+  setLength(strArr, count(',', str));
+  setLength(result, length(strArr));
+  for i := 0 to high(strArr) do
   begin
-    result[i] := StrToInt(Between(']' + placeHolder, ',', str));
-    placeHolder := placeHolder + IntToStr(result[i]) + ',';
+    strArr[i] := Between('[' + placeHolder, ',', str);
+    placeHolder := placeHolder + strArr[i] + ',';
+    result[i] := StrToInt(Replace(strArr[i], ']', '', [rfReplaceAll]));
   end;
 end;
-
-function strToArr(tsa:string):TIntegerArray;
-var
-  i:Integer;
-begin
-
 
 function openUserFile(name:string): integer;
 var
@@ -242,14 +239,14 @@ var
   s:String;
   tempFile:Integer;
 begin
-  tempFile := RewriteFile(appPath + 'BlackJack\Profiles\' + myPlayer.name + '.txt', True);
+  tempFile := RewriteFile(appPath + 'BlackJack\' + myPlayer.name + '.txt', True);
   try
     s := myPlayer.name;
-   // saveFile('[cash=]' + Int64ToStr(myPlayer.cash) + '[/cash]', s);
-    saveFile('[name=]' + myPlayer.name + '[/name]', s);
-    saveFile('[wins=]' + ToStr(myPlayer.wins) + '[/wins]', s);
-    saveFile('[losses=]' + ToStr(myPlayer.losses) + '[/losses]', s);
-    saveFile('[cards=]' + ToStr(myPlayer.cards) + '[/cards]', s);
+    saveFile('[cash=]' + Int64ToStr(myPlayer.cash) + '[/cash]', s);
+    WriteFileString(tempFile, '[name=]' + myPlayer.name + '[/name]');
+    WriteFileString(tempFile, '[wins=]' + ToStr(myPlayer.wins) + '[/wins]');
+    WriteFileString(tempFile, '[losses=]' + ToStr(myPlayer.losses) + '[/losses]');
+    WriteFileString(tempFile, '[cards=]' + ToStr(myPlayer.cards) + ',' + '[/cards]');
     result := true;
   except
     Writeln('Error saving game');
@@ -264,18 +261,18 @@ var
   info:string;
   tmpFile:Integer;
 begin
-  tmpFile := openFile(appPath + 'BlackJack\Profiles\' + playerName + '.txt', true);
-  ReadFileString(tmpFile, info, 250);
-  Writeln(info);
+  tmpFile := openFile(appPath + 'BlackJack\' + playerName + '.txt', true);
   try
-   // myPlayer.cash := StrToInt64(Between('[cash=]', '[/cash]', info));
+    ReadFileString(tmpFile, info, 250);
+    myPlayer.cash := StrToInt64(Between('[cash=]', '[/cash]', info));
     myPlayer.name := Between('[name=]', '[/name]', info);
     myPlayer.wins := StrToInt(Between('[wins=]', '[/wins]', info));
     myPlayer.losses := StrToInt(Between('[losses=]', '[/losses]', info));
-    myPlayer.cards := [5];
+    myPlayer.cards := strToArr(Between('[/losses][cards=]', '[/cards]', info));
+    Writeln(Between('[/losses][cards=]', '[/cards]', info));
     result := true;
   except
-    Writeln('Error loading player file!');
+    Writeln('Error loading player file ' + playerName);
     result := false;
   finally
     closeFile(tmpFile);
@@ -318,7 +315,7 @@ begin
     end;
     myPlayer.name := textFields.newEdit.TEXT;
     if saveGame() then
-      writeLn('Successfully saved: ' + appPath + 'BlackJack\Profiles\' + myPlayer.name + '.txt');
+      writeLn('Successfully saved: ' + appPath + 'BlackJack\' + myPlayer.name + '.txt');
   end;
 end;
 
@@ -635,7 +632,7 @@ begin
     Caption := 'Enter nickname';
   end;
  // canvasDrawChips;
-  tsa := Getfiles(AppPath + 'BlackJack\Profiles\', 'txt');
+  tsa := Getfiles(AppPath + 'BlackJack\', 'txt');
   for i := 0 to high(tsa) do
     myBoard.loadedPlayers.ITEMS.Add(replace(tsa[i], '.txt', '', [rfReplaceAll]));
 
@@ -669,21 +666,17 @@ begin
   Names := ['Ace', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'Jack', 'Queen', 'King'];
   loadDeck();
   initValid;
-  SafeInitForm;
-  SafeShowFormModal;
-  if (not DirectoryExists((appPath + 'BlackJack/Profiles'))) then
+  loadGame('test');
+  Writeln(myPlayer);
+  //SafeInitForm;
+ // SafeShowFormModal;
+  if (not DirectoryExists((appPath + 'BlackJack'))) then
   begin
-    if not ForceDirectories(appPath + 'BlackJack/Profiles') then
+    if not ForceDirectories(appPath + 'BlackJack') then
     begin
       Writeln('Unable to create directories needed to run');
       Exit;
     end;
-  end;
-  if (not findFile(appPath + 'BlackJack\', 'txt', 'readme')) then
-  begin
-    Writeln('test 123');
-   // AddInfo('', 'BlackJack/readme', False);
-   // AddInfo('Instructions: http://en.wikipedia.org/wiki/Blackjack', 'BlackJack/readme', False);
   end;
 
 end.
