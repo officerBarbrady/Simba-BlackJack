@@ -16,7 +16,7 @@ end;
 
 type gameBoard = record
   main, menu, load, new:TForm;
-  menuLabels:Array[0..3] of TLabel;
+  menuLabels:Array[0..4] of TLabel;
   loadPlayerLabels:Array[0..1] of TLabel;
   newPlayerLabel:TLabel;
   loadedPlayers:TListBox;
@@ -194,15 +194,16 @@ begin
 end;
 
 function cashString():String;
-var
-  cash64:Int64;
 begin
   result := ToStr(myPlayer.cash);
-  if (myPlayer.cash > 99999) then
-  begin
-    if ((myPlayer.cash > 99999) and (myPlayer.cash < 999999)) then
-      result := ToStr((Round(myPlayer.cash / 1000))) + 'K';
-  end;
+  if ((myPlayer.cash > 99999) and (myPlayer.cash < 9999999)) then
+    result := ToStr((Round(myPlayer.cash / 1000))) + 'K';
+  if ((myPlayer.cash > 9999999) and (myPlayer.cash < 9999999999)) then
+    result := ToStr((Round(myPlayer.cash / 1000000))) + 'M';
+  if ((myPlayer.cash > 9999999999) and (myPlayer.cash < 9999999999999)) then
+    result := ToStr((Round(myPlayer.cash / 1000000000))) + 'B';
+  if ((myPlayer.cash > 9999999999) and (myPlayer.cash < 9999999999999999)) then
+    result := ToStr((Round(myPlayer.cash / 1000000000000))) + 'T';
 end;
 
 function blackJack(cardArray:TIntegerArray):boolean;
@@ -253,7 +254,7 @@ end;
 
 procedure startGame();
 begin
-  myPlayer.cash := random(1000000) + 50000;
+  myPlayer.cash := random(90000000) + 5000000;
   saveGame();
   Writeln('====================================');
   Writeln('Starting cash: ' + ToStr(myPlayer.cash));
@@ -298,7 +299,7 @@ begin
       False:
       begin
         myPlayer.name := textFields.newEdit.TEXT;
-        myPlayer.cash := random(1000000) + 50000;
+        myPlayer.cash := random(90000000) + 5000000;
         if saveGame() then
         begin
           writeLn('Successfully saved: ' + appPath + 'BlackJack\' + myPlayer.name + '.txt');
@@ -336,13 +337,34 @@ end;
 
 procedure FuckYou(sender:TObject);
 var
-  i:Integer;
+  reply:Integer;
 begin
   case sender of
     myBoard.menuLabels[0]: newPlayer();
-    myBoard.menuLabels[1]: loadPlayers();
-    myBoard.menuLabels[2]: openWebPage('http://www.pagat.com/banking/blackjack.html');
-    myBoard.menuLabels[3]:
+    myBoard.menuLabels[2]: loadPlayers();
+    myBoard.menuLabels[1]:
+    begin
+      if (myPlayer.name <> '') then
+      begin
+        reply := MessageBox('Start game ' + myPlayer.name + '?', 'Start Game',1);
+        case reply of
+          0: Writeln('Cancelled');
+          1:
+          begin
+            try
+              myBoard.menu.CLOSE;
+            except
+              Writeln('Error freeing menu form');
+            finally
+              myBoard.main.showModal;
+            end;
+          end;
+        end;
+      end else if (myPlayer.name = '') then
+        MessageBox('You must first load a player!', 'Error', 8);
+    end;
+    myBoard.menuLabels[3]: openWebPage('http://www.pagat.com/banking/blackjack.html');
+    myBoard.menuLabels[4]:
     begin
       Writeln('==');
       Writeln(myPlayer);
@@ -416,8 +438,6 @@ begin
 end;
 
 procedure canvasDrawCash;
-var
-  i, l:Integer;
 begin
    {
    gameGraphics.chipBitmaps[i] := TImage.Create(myBoard.main);
@@ -550,18 +570,18 @@ begin
   myBoard.menu := TForm.Create(nil);
   with myBoard.menu do
   begin
-    Caption := 'Black Jack - by Officer Barbrady';
+    Caption := 'Black Jack';
     top := 200;
     left := 200;
     width := 450;
     height := 400;
-    color := 161526;
+    color := 10572865;
   end;
 
   myBoard.load := TForm.Create(nil);
   with myBoard.load do
   begin
-    Caption := 'Select player - by Officer Barbrady';
+    Caption := 'Select player';
     top := 250;
     left := 350;
     width := 400;
@@ -601,7 +621,7 @@ begin
       Onclick := @dispName;
   end;
 
-  text := ['New Game', 'Select Player','Instructions','Quit'];
+  text := ['New Game', 'Start Game', 'Load Player','Instructions','Quit'];
   for i := 0 to high(myBoard.menuLabels) do
   begin
     myBoard.menuLabels[i] := TLabel.create(myBoard.menu);
@@ -609,13 +629,15 @@ begin
     begin
       Parent := myBoard.menu;
       Caption := text[i];
-      left := 165;
-      top := 65 + (i * 70);
+      left := 145;
+      top := 45 + (i * 70);
       font.size := 17;
       font.color := 1098086;
       if (i = 3) then
-        left := 190;
-      font.name := 'Cezanne';
+        left := 135;
+      if (i = 4) then
+        left := 180;
+      font.name := 'Trajan Pro';
       onClick := @Fuckyou;
     end;
   end;
@@ -623,7 +645,7 @@ begin
   myBoard.new := TForm.Create(nil);
   with myBoard.new do
   begin
-    Caption := 'New Player - by the capable Officer Barbrady';
+    Caption := 'New Player';
     top := 240;
     left := 270;
     width :=300;
@@ -695,7 +717,6 @@ begin
       Exit;
     end;
   end;
-  Writeln(cashString());
   SafeInitForm;
   SafeShowFormModal;
 end.
