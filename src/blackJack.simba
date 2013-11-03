@@ -18,6 +18,7 @@ type gameBoard = record
   main, menu, load, new:TForm;
   menuLabels:Array[0..4] of TLabel;
   loadPlayerLabels:Array[0..1] of TLabel;
+  playerInfo:Array[0..3] of TLabel;
   newPlayerLabel:TLabel;
   loadedPlayers:TListBox;
 end;
@@ -329,10 +330,20 @@ begin
 
 end;
 
-procedure dispName(sender:TObject);
+procedure dispStats(sender:TObject);
+var
+  i:Integer;
 begin
   if (myBoard.loadedPlayers.ITEMINDEX > - 1) then
-    Writeln(myBoard.loadedPlayers.ITEMS.Strings[myBoard.loadedPlayers.ITEMINDEX]);
+  begin
+    loadGame(myBoard.loadedPlayers.ITEMS.Strings[myBoard.loadedPlayers.ITEMINDEX]);
+    myBoard.playerInfo[0].caption := 'Cash: ' + Int64ToStr(myPlayer.cash);
+    myBoard.playerInfo[1].caption := 'Wins: ' + ToStr(myPlayer.wins);
+    myBoard.playerInfo[2].caption := 'Losses: ' + ToStr(myPlayer.losses);
+    for i := 0 to high(myBoard.playerInfo) do
+      myBoard.playerInfo[i].Visible := true;
+    resetPlayer();
+  end;
 end;
 
 procedure FuckYou(sender:TObject);
@@ -586,9 +597,31 @@ begin
     left := 350;
     width := 400;
     height := 300;
-    color := 4095699;
+    color := 10572865;
   end;
 
+  text := ['Cash:', 'Wins:','Losses:','View cards'];
+  for i := 0 to high(myBoard.playerInfo) do
+  begin
+    myBoard.playerInfo[i] := TLabel.create(myBoard.load);
+    with myBoard.playerInfo[i] do
+    begin
+      Parent := myBoard.load;
+      Caption := text[i];
+      left := 190;
+      top := 30 + (i * 40);
+      if (i = 3) then
+      begin
+        left := 240;
+        top := 170;
+      end;
+      font.size := 12;
+      font.color := 0;
+      font.name := 'Trajan Pro';
+      onClick := @fuckYou;
+      Visible := false;
+    end;
+  end;
 
   text := ['Load Player', 'Delete Player'];
   for i := 0 to high(myBoard.loadPlayerLabels) do
@@ -598,11 +631,12 @@ begin
     begin
       Parent := myBoard.load;
       Caption := text[i];
-      left := 30 + (i * 120);
-      top := 220;
-      font.size := 15;
-      font.color := 4497274;
-      font.name := 'Cezanne';
+      left := 40 + (i * 170);
+      top := 250;
+      font.size := 12;
+      font.color := 5;
+      font.name := 'Trajan Pro';
+      color := 16777215;
       onClick := @fuckYou;
     end;
   end;
@@ -611,14 +645,15 @@ begin
   with myBoard.loadedPlayers do
   begin
       Parent := myBoard.load;
-      Left := 130;
+      Left := 25;
       Top := 10;
       Width := 140;
       Height := 180;
       PARENTCOLOR := false;
       FONT.Size := 11;
       font.name := 'Times new Roman';
-      Onclick := @dispName;
+      Color := 1844685;
+      Onclick := @dispStats;
   end;
 
   text := ['New Game', 'Start Game', 'Load Player','Instructions','Quit'];
@@ -633,10 +668,11 @@ begin
       top := 45 + (i * 70);
       font.size := 17;
       font.color := 1098086;
-      if (i = 3) then
-        left := 135;
-      if (i = 4) then
-        left := 180;
+      case i of
+        0: left := 152;
+        3: left := 135;
+        4: left := 180;
+      end;
       font.name := 'Trajan Pro';
       onClick := @Fuckyou;
     end;
