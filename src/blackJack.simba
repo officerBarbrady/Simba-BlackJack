@@ -123,6 +123,40 @@ begin
   end;
 end;
 
+function Count(s, str: string): Integer;
+var
+  p, sL: Integer;
+begin
+  Result := 0;
+  sL := Length(s);
+  p := (p - (sL - 1));
+  if (sL <= Length(str)) then
+  repeat
+    p := PosEx(s, str, (p + sL));
+    if (p > 0) then
+      Inc(Result);
+  until (p <= 0);
+end;
+
+function strToArr(str, bet1, bet2:string):TIntegerArray;
+var
+  i:Integer;
+  placeHolder:string;
+begin
+  setLength(result, count(',', str));
+  for i := 0 to high(result) do
+  begin
+    result[i] := StrToInt(Between(']' + placeHolder, ',', str));
+    placeHolder := placeHolder + IntToStr(result[i]) + ',';
+  end;
+end;
+
+function strToArr(tsa:string):TIntegerArray;
+var
+  i:Integer;
+begin
+
+
 function openUserFile(name:string): integer;
 var
   fileName,Bot_SavePath: string;
