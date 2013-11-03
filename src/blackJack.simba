@@ -290,9 +290,17 @@ procedure loadPlayers();
 begin
   updateFiles();
   myBoard.load.SHOWMODAL;
+  Writeln(myBoard.loadedPlayers.ITEMS.Names[myBoard.loadedPlayers.ITEMINDEX]);
+ // myBoard.loadedPlayers.ITEMS.n
   // loadGame
   // TODO
 
+end;
+
+procedure dispName(sender:TObject);
+begin
+  if (myBoard.loadedPlayers.ITEMINDEX > - 1) then
+    Writeln(myBoard.loadedPlayers.ITEMS.Strings[myBoard.loadedPlayers.ITEMINDEX]);
 end;
 
 procedure FuckYou(sender:TObject);
@@ -523,7 +531,7 @@ begin
       font.size := 15;
       font.color := 4497274;
       font.name := 'Cezanne';
-      onClick := @Fuckyou;
+      onClick := @fuckYou;
     end;
   end;
 
@@ -538,7 +546,7 @@ begin
       PARENTCOLOR := false;
       FONT.Size := 11;
       font.name := 'Times new Roman';
-     // Onclick := @Fuckyou;
+      Onclick := @dispName;
   end;
 
   text := ['New Game', 'Select Player','Instructions','Quit'];
@@ -627,10 +635,8 @@ begin
   Names := ['Ace', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'Jack', 'Queen', 'King'];
   loadDeck();
   initValid;
-  loadGame('test');
-  Writeln(myPlayer);
-  //SafeInitForm;
- // SafeShowFormModal;
+  SafeInitForm;
+  SafeShowFormModal;
   if (not DirectoryExists((appPath + 'BlackJack'))) then
   begin
     if not ForceDirectories(appPath + 'BlackJack') then
