@@ -56,6 +56,18 @@ var
 
 procedure loadBMP;
 begin
+  gameGraphics.pictures.cashBmps0 := getMufasaBitmap(BitmapFromString(31, 31, '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'));
+end;
+
+procedure freeBMP;
+begin
+  try
+    FreeBitmap(gameGraphics.pictures.cashbmps0);
+    FreeBitmap(gameGraphics.pictures.cashBmp0);
+    FreeBitmap(gameGraphics.pictures.cashBitmap);
+  except
+    Writeln('Bitmaps already freed!');
+  end;
 end;
 function getValue(card:string):Integer;
 begin
@@ -735,6 +747,7 @@ end;
 
 begin
   AddOnTerminate('ClearDraw');
+  AddOnTerminate('freeBMP');
   Types := ['Clubs', 'Spades', 'Hearts', 'Diamands'];
   Names := ['Ace', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'Jack', 'Queen', 'King'];
   loadDeck();
