@@ -193,6 +193,18 @@ begin
   end;
 end;
 
+function cashString():String;
+var
+  cash64:Int64;
+begin
+  result := ToStr(myPlayer.cash);
+  if (myPlayer.cash > 99999) then
+  begin
+    if ((myPlayer.cash > 99999) and (myPlayer.cash < 999999)) then
+      result := ToStr((Round(myPlayer.cash / 1000))) + 'K';
+  end;
+end;
+
 function blackJack(cardArray:TIntegerArray):boolean;
 begin
   result := (cardTotal(cardArray) = 21);
@@ -254,7 +266,6 @@ var
   i:Integer;
 begin
   s := GetFiles(path, ext);
-  Writeln(s);
   for i := 0 to high(s) do
     result := (s[i] = (name +'.' + ext));
 end;
@@ -684,6 +695,7 @@ begin
       Exit;
     end;
   end;
+  Writeln(cashString());
   SafeInitForm;
   SafeShowFormModal;
 end.
