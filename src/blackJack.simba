@@ -1,7 +1,5 @@
 program blackJack;
 
-
-
 type Tcard = record
   cardType, name: string;
   value: Integer;
@@ -154,45 +152,6 @@ begin
   end;
 end;
 
-function openUserFile(name:string): integer;
-var
-  fileName,Bot_SavePath: string;
-begin
-
-  Bot_SavePath := appPath + 'BlackJack\Profiles' // path
-  if (not directoryExists(Bot_SavePath)) then // if it does not exist it will save else were
-    forceDirectories(Bot_SavePath);
-
-  fileName := name + '.txt'; // file name
-  fileName := Bot_SavePath + fileName;
-
-
-  try
-    if (fileExists(fileName)) then // checks if the file exists
-      result := appendFile(fileName)
-    else
-      result := createFile(fileName); // if it does not exist it creates it
-  except
-    Writeln('h');
-  end;
-end;
-procedure saveFile(s, name:string);
-var
-  tmpFile: integer;
-begin
-
-  tmpFile := openUserFile(name);
-
-  if (tmpFile >= 0) then
-    try
-     writeFileString(tmpFile, s);
-    except
-      Writeln('Error writing File');
-    finally
-      closeFile(tmpFile);
-    end;
-end;
-
 function randomCard:TCard;
 begin
   result := TDeck[random(52)];
@@ -236,13 +195,11 @@ end;
 
 function saveGame():boolean;
 var
-  s:String;
   tempFile:Integer;
 begin
   tempFile := RewriteFile(appPath + 'BlackJack\' + myPlayer.name + '.txt', True);
   try
-    s := myPlayer.name;
-    saveFile('[cash=]' + Int64ToStr(myPlayer.cash) + '[/cash]', s);
+    WriteFileString(tempFile,'[cash=]' + Int64ToStr(myPlayer.cash) + '[/cash]');
     WriteFileString(tempFile, '[name=]' + myPlayer.name + '[/name]');
     WriteFileString(tempFile, '[wins=]' + ToStr(myPlayer.wins) + '[/wins]');
     WriteFileString(tempFile, '[losses=]' + ToStr(myPlayer.losses) + '[/losses]');
@@ -281,8 +238,7 @@ end;
 
 procedure startGame();
 begin
-  saveFile('==', myPlayer.name);
-  //myPlayer.cash := random(1000000) + 50000;
+  myPlayer.cash := random(1000000) + 50000;
   saveGame();
   Writeln('====================================');
   Writeln('Starting cash: ' + ToStr(myPlayer.cash));
@@ -319,10 +275,23 @@ begin
   end;
 end;
 
+procedure updateFiles();
+var
+  tsa:TStringArray;
+  i:Integer;
+begin
+  tsa := Getfiles(AppPath + 'BlackJack\', 'txt');
+  myBoard.loadedPlayers.ITEMS.Clear;
+  for i := 0 to high(tsa) do
+    myBoard.loadedPlayers.ITEMS.Add(replace(tsa[i], '.txt', '', [rfReplaceAll]));
+end;
+
 procedure loadPlayers();
 begin
+  updateFiles();
   myBoard.load.SHOWMODAL;
-
+  // loadGame
+  // TODO
 
 end;
 
@@ -415,12 +384,6 @@ begin
   end;
   drawCards();
   clearDraw();
-  Writeln('Debug card letters ' + ToStr(length(gameGraphics.cardLetters)));
-  Writeln('Debug my cards ' + ToStr(length(gameGraphics.myCards)));
-  Writeln('Debug images TImage ' + ToStr(length(gameGraphics.pictures.cardBitmaps)));
-  Writeln('Debug images bmps0 ' + ToStr(length(gameGraphics.pictures.bmps0)));
-  Writeln('Debug images bmp ' + ToStr(length(gameGraphics.pictures.bmp0)));
-  Writeln('Card total: ' + ToStr(cardTotal(myPlayer.cards)));
   if blackJack(myPlayer.cards)  then
     Writeln('BLACK JACK!');
   setLength(gameGraphics.myCards, length(myPlayer.cards));
