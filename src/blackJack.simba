@@ -216,8 +216,10 @@ begin
     result := ToStr((Round(myPlayer.cash / 1000000))) + 'M';
   if ((myPlayer.cash > 9999999999) and (myPlayer.cash < 9999999999999)) then
     result := ToStr((Round(myPlayer.cash / 1000000000))) + 'B';
-  if ((myPlayer.cash > 9999999999999) and (myPlayer.cash < 9999999999999999)) then
+  if ((myPlayer.cash > 9999999999999) and (myPlayer.cash <= 9999999999999999)) then
     result := ToStr((Round(myPlayer.cash / 1000000000000))) + 'T';
+  if ((myPlayer.cash > 9999999999999999) and (myPlayer.cash <=9223372036854775807)) then
+    result := ToStr((Round(myPlayer.cash / 1000000000000000))) + 'Q';
 end;
 
 function blackJack(cardArray:TIntegerArray):boolean;
@@ -478,6 +480,17 @@ begin
     result := 16646144;
   if ((myPlayer.cash > 9999999999999) and (myPlayer.cash < 9999999999999999)) then
     result := 65776;
+  if ((myPlayer.cash > 9999999999999999) and (myPlayer.cash <=9223372036854775807)) then
+    result := 16187817;
+end;
+
+procedure clearCashAmount();
+begin
+  try
+    gameGraphics.cashLabel.Free;
+  except
+    Writeln('');
+  end;
 end;
 
 procedure canvasDrawCashAmount();
@@ -566,9 +579,21 @@ begin
 end;
 
 procedure handleRequest(sender:TObject);
+var
+  cash:string;
 begin
   case sender of
-    textFields.playerOptions[0]: canvasDrawCards;
+    textFields.playerOptions[0]:
+    begin
+      InputQuery('Enter cash amount', 'Cheat', cash);
+      try
+        myPlayer.cash := StrToInt64(cash);
+      except
+        Writeln('Invalid number!');
+      end;
+      clearCashAmount();
+      canvasDrawCashAmount();
+    end;
     textFields.playerOptions[1]: clearDraw();
     textFields.playerOptions[2]:
     begin
