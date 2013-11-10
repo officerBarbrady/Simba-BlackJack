@@ -45,9 +45,11 @@ type gameObject = record
   cashLabel:TLabel;
 end;
 
+type
+  TCardArray  = array[0..51] of TCard;
 
 var
-  TDeck: array [0..51] of Tcard;
+  TDeck:TCardArray;
   validCards:TIntegerArray;
   names, types:TStringArray;
   myPlayer:player;
@@ -811,8 +813,7 @@ end;
 
 procedure ShowFormModal;
 begin
-  myBoard.main.ShowModal;
-
+  myBoard.menu.ShowModal;
 end;
 
 procedure SafeShowFormModal;
@@ -840,7 +841,6 @@ begin
       Exit;
     end;
   end;
-  loadGame('gy');
   SafeInitForm;
   SafeShowFormModal;
 end.
